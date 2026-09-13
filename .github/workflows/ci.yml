@@ -29,6 +29,11 @@ jobs:
       - name: Metadata audit test suite
         run: bash scripts/metadata-audit-test.sh
 
+      - name: AEGIS portfolio audit test suite
+        run: |
+          python3 -m py_compile scripts/portfolio-audit.py
+          bash scripts/portfolio-audit-test.sh
+
       - name: References are in sync with the taxonomy
         run: |
           python3 scripts/generate-references.py
@@ -41,4 +46,4 @@ jobs:
 
       - name: JSON well formed
         run: |
-          python3 -c "import json; json.load(open('data/rejection-patterns.json')); json.load(open('data/detection-recipes.json')); print('json ok')"
+          python3 -c "import json; json.load(open('data/rejection-patterns.json')); json.load(open('data/detection-recipes.json')); json.load(open('templates/portfolio.example.json')); print('json ok')"
