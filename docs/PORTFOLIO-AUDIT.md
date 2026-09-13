@@ -1,21 +1,27 @@
 # AEGIS Portfolio Audit
 
-The portfolio audit runs the existing App Store Compliance Guard across multiple apps and produces one release-level result.
+The AEGIS portfolio audit runs the existing App Store Compliance Guard across multiple apps and produces one release-level result without weakening the underlying rules.
 
-It is designed for teams or owners managing more than one iOS or Android product. It does **not** weaken or replace the underlying guard.
+It adds the governance layer the raw scanner cannot provide on its own: reviewed classifications, expiry dates, owner/store actions, store readiness, evidence bundles and SARIF output.
 
-## Why this exists
+## What it tracks
 
-Running each app manually makes it easy to lose track of which product is actually ready to ship. The portfolio runner gives you one view of:
+For every app the audit records:
 
-- critical rejection blockers
-- high-priority review items
-- medium warnings
-- missing or broken app paths
-- raw evidence for each app
-- a machine-readable summary for CI or release governance
+- raw Critical / High / Medium guard findings
+- effective findings after valid human classification
+- false positives with evidence and expiry
+- owner/legal actions
+- store-console actions
+- deferred items with expiry
+- store and account readiness
+- region metadata
+- raw guard output
+- machine-readable JSON
+- SARIF for CI/code-scanning systems
+- a human-readable release summary
 
-## Configure your apps
+## Configure your portfolio
 
 Copy the template:
 
@@ -23,9 +29,7 @@ Copy the template:
 cp templates/portfolio.example.json portfolio.json
 ```
 
-Edit each local app path. Paths may use `~` and environment variables.
-
-Example:
+Paths may use `~` and environment variables.
 
 ```json
 {
@@ -35,23 +39,29 @@ Example:
       "name": "Example App",
       "path": "~/ExampleApp",
       "platforms": ["ios", "android"],
-      "regions": ["AU", "US"]
+      "regions": ["AU", "US"],
+      "store_readiness": {
+        "apple_developer_program": true,
+        "apple_agreements": true,
+        "apple_privacy_answers": false,
+        "google_developer_verification": true,
+        "google_data_safety": false,
+        "physical_device_qa": false
+      }
     }
   ]
 }
 ```
 
-`platforms` and `regions` are recorded as portfolio metadata. The underlying guard still detects the actual project platforms from the source tree.
+An empty `store_readiness` object means the release checklist is not yet being tracked. Once keys are added, every value other than literal `true` remains an owner action.
 
-## Run the audit
-
-From this repository:
+## Run
 
 ```bash
 python3 scripts/portfolio-audit.py --config portfolio.json
 ```
 
-The runner automatically finds the repository guard. If the skill is installed separately, you can point at it explicitly:
+To use the installed Claude hook explicitly:
 
 ```bash
 python3 scripts/portfolio-audit.py \
@@ -59,20 +69,68 @@ python3 scripts/portfolio-audit.py \
   --guard ~/.claude/hooks/app-store-compliance-guard.sh
 ```
 
+## Finding classifications
+
+Each app may keep a repository-local file at:
+
+```text
+.app-store-compliance/findings.json
+```
+
+or specify a different path with `"classifications": "..."` in the portfolio config.
+
+Copy the example:
+
+```bash
+mkdir -p .app-store-compliance
+cp templates/findings-classification.example.json .app-store-compliance/findings.json
+```
+
+Supported classifications:
+
+| Classification | Effect |
+| --- | --- |
+| `REAL` | Finding remains active at its original severity |
+| `FALSE_POSITIVE` | Does not block while the documented classification is valid and unexpired |
+| `STORE_TASK` | Removed from code-defect counts but remains an owner/store action and prevents PASS |
+| `OWNER_LEGAL` | Removed from code-defect counts but remains an owner/legal action and prevents PASS |
+| `DEFERRED` | Time-bounded deferral; prevents PASS and keeps the app in REVIEW |
+
+`FALSE_POSITIVE` and `DEFERRED` **must** have a valid `expires` date. Every classification requires a reason. Expired or invalid classifications become active findings again.
+
+Example:
+
+```json
+{
+  "schema_version": 1,
+  "findings": [
+    {
+      "id": "BOTH-PLACEHOLDER",
+      "classification": "FALSE_POSITIVE",
+      "reason": "Only a dependency funding URL matched; no user-visible placeholder content exists.",
+      "reviewed_at": "2026-09-13",
+      "expires": "2027-03-13",
+      "evidence": ["package-lock.json"]
+    }
+  ]
+}
+```
+
+This is deliberately not a silent suppression system. Every waived item stays in the report.
+
 ## Verdicts
 
 | Verdict | Meaning |
 | --- | --- |
-| `PASS` | No critical or high findings from the code guard |
-| `REVIEW` | No critical findings, but one or more high findings require review |
-| `BLOCKED` | At least one critical rejection risk exists |
-| `ERROR` | An app path is missing or the guard did not produce a valid result |
+| `PASS` | No active critical/high findings, no owner/store blockers, no deferred items, and tracked store readiness is complete |
+| `REVIEW` | High findings or deferred items remain |
+| `OWNER_ACTION` | Store/account/legal work remains even though code may be clean |
+| `BLOCKED` | At least one active critical finding remains |
+| `ERROR` | The app could not be audited safely |
 
-A `PASS` is a code-guard result only. Store-console declarations, signed-device QA, legal/account agreements and other human validation may still remain.
+The system will not report PASS merely because a regex was suppressed.
 
 ## Evidence bundle
-
-To keep the raw audit output for every app:
 
 ```bash
 python3 scripts/portfolio-audit.py \
@@ -80,56 +138,71 @@ python3 scripts/portfolio-audit.py \
   --evidence-dir compliance-evidence
 ```
 
-This writes:
+Output:
 
 ```text
 compliance-evidence/
-  Example-App.txt
+  SUMMARY.md
   portfolio-summary.json
+  compliance.sarif
+  Example-App-guard.txt
+  Example-App-findings.json
 ```
 
-The text files contain the exact guard output. `portfolio-summary.json` contains the consolidated counts and verdicts without duplicating the raw logs.
+`SUMMARY.md` is the human release scorecard. `portfolio-summary.json` is the structured evidence record. `compliance.sarif` can be consumed by systems that understand SARIF 2.1.0.
 
-Do not commit evidence bundles if they expose local paths or other information you do not want in source control.
+Do not commit evidence bundles if they contain local machine paths or information you do not want in source control.
 
-## JSON / CI mode
+## JSON and CI
 
 ```bash
 python3 scripts/portfolio-audit.py --config portfolio.json --json
 ```
 
-Exit behavior defaults to the same safety principle as the guard:
+Exit codes:
 
-- exit `2` when any critical finding exists
-- exit `3` when an app could not be audited correctly
-- exit `0` when there are no criticals
+- `0`: threshold not breached
+- `1`: high threshold breached when `--fail-on high`
+- `2`: active critical finding
+- `3`: audit error
+- `4`: owner/store threshold breached when `--fail-on owner`
 
-To make high findings fail CI too:
+Examples:
 
 ```bash
 python3 scripts/portfolio-audit.py --config portfolio.json --fail-on high
-```
-
-To collect results without failing the calling process:
-
-```bash
+python3 scripts/portfolio-audit.py --config portfolio.json --fail-on owner
 python3 scripts/portfolio-audit.py --config portfolio.json --fail-on never
 ```
 
-`--fail-on never` changes only the portfolio runner's process exit. It does not hide findings or set the underlying guard bypass.
+`--fail-on never` changes process exit only. It never hides a finding and never sets `APP_STORE_GUARD_OK`.
 
-## Safety rule
+## SARIF only
 
-The runner deliberately removes `APP_STORE_GUARD_OK` from the child process environment. A machine that previously used a local guard override therefore cannot silently turn a portfolio audit green.
+```bash
+python3 scripts/portfolio-audit.py \
+  --config portfolio.json \
+  --sarif compliance.sarif
+```
 
-False positives should be investigated and classified. Do not delete useful product capability merely to make a scan quiet.
+Valid active false positives are omitted from SARIF annotations but remain present in the JSON and Markdown evidence bundle. Owner/store/deferred findings remain visible.
 
-## Recommended AEGIS release flow
+## Safety properties
+
+The runner deliberately strips inherited `APP_STORE_GUARD_OK` before launching the underlying guard. A machine that once used a local override therefore cannot silently green a portfolio audit.
+
+The audit also fails closed if the parsed finding list disagrees with the guard's own summary counts. This prevents a parser change from producing a falsely cleaner result.
+
+Useful app capability must not be removed merely to silence a scanner. Investigate the match, fix a real problem, or classify the evidence correctly.
+
+## Recommended release flow
 
 1. Run the portfolio audit.
-2. Resolve all criticals.
-3. Investigate every high finding and record whether it is a true issue, false positive, store-console task or owner action.
-4. Complete account/store readiness and regulatory deadline checks.
-5. Run real-device QA.
-6. Capture the evidence bundle for the release candidate.
-7. Submit only when the product, store, account and proof gates are all clear.
+2. Fix active Critical findings.
+3. Review High findings.
+4. Record any proven false positive with evidence and an expiry date.
+5. Complete owner/legal and store-console actions.
+6. Complete store/account readiness.
+7. Run physical-device QA and signed-build validation.
+8. Generate the evidence bundle.
+9. Submit only when the final portfolio verdict is PASS.
