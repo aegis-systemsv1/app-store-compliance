@@ -1,6 +1,6 @@
 # AEGIS App Store Compliance Roadmap
 
-Status: proposed enhancement plan for the AEGIS-maintained distribution.
+Status: active enhancement plan for the AEGIS-maintained distribution.
 
 The upstream project remains the policy and rule foundation. AEGIS enhancements should improve release governance without weakening or silently changing upstream compliance rules.
 
@@ -8,32 +8,41 @@ The upstream project remains the policy and rule foundation. AEGIS enhancements 
 
 Goal: audit several mobile apps as one release portfolio.
 
-Deliverables:
+### Implemented
 
 - `scripts/portfolio-audit.py`
-- YAML/JSON portfolio configuration
+- JSON portfolio configuration
 - per-app guard invocation
 - consolidated Critical / High / Medium findings
+- consolidated portfolio verdict
+- non-zero exit if any app has a critical finding
+- machine-readable JSON output
+- per-app raw evidence bundle
+- portfolio summary JSON
+- CI test coverage
+- inherited `APP_STORE_GUARD_OK` is deliberately removed from portfolio child runs
+
+See `docs/PORTFOLIO-AUDIT.md` and `templates/portfolio.example.json`.
+
+### Still to add
+
+- optional YAML configuration
+- Markdown summary report
 - consolidated owner/store/legal blockers
-- exit non-zero if any app has a critical finding
-- Markdown and JSON reports
+- richer per-finding evidence and classification from Phase 2
 
 Example:
 
-```yaml
-apps:
-  - name: Selayra
-    path: ~/SELAYRA
-    regions: [AU, US, EU]
-  - name: DwellVerify
-    path: ~/DwellVerify
-    regions: [AU, US, EU]
-  - name: Dishly
-    path: ~/dishly
-    regions: [AU, US, EU]
-  - name: Kintra
-    path: ~/KINTRA
-    regions: [AU, US, EU]
+```json
+{
+  "portfolio_name": "AEGIS Mobile Portfolio",
+  "apps": [
+    {"name": "Selayra", "path": "~/SELAYRA", "regions": ["AU", "US", "EU"]},
+    {"name": "DwellVerify", "path": "~/DwellVerify", "regions": ["AU", "US", "EU"]},
+    {"name": "Dishly", "path": "~/DISHLY", "regions": ["AU", "US", "EU"]},
+    {"name": "Kintra", "path": "~/KINTRA", "regions": ["AU", "US", "EU"]}
+  ]
+}
 ```
 
 ## Phase 2 — Evidence and classification
