@@ -1,0 +1,29 @@
+{
+  "portfolio_name": "AEGIS Mobile Portfolio",
+  "apps": [
+    {
+      "name": "Selayra",
+      "path": "~/SELAYRA",
+      "platforms": ["ios", "android"],
+      "regions": ["AU"]
+    },
+    {
+      "name": "DwellVerify",
+      "path": "~/DwellVerify",
+      "platforms": ["ios", "android"],
+      "regions": ["AU"]
+    },
+    {
+      "name": "Dishly",
+      "path": "~/DISHLY",
+      "platforms": ["ios", "android"],
+      "regions": ["AU"]
+    },
+    {
+      "name": "Kintra",
+      "path": "~/KINTRA",
+      "platforms": ["ios", "android"],
+      "regions": ["AU"]
+    }
+  ]
+}
