@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "findings": [
+    {
+      "id": "BOTH-PLACEHOLDER",
+      "classification": "FALSE_POSITIVE",
+      "reason": "The match is a dependency metadata URL and is not user-visible placeholder content.",
+      "reviewed_at": "2026-09-13",
+      "expires": "2027-03-13",
+      "evidence": [
+        "package-lock.json: Open Collective funding URL only"
+      ]
+    },
+    {
+      "id": "APPLE-2.1-MISSING-DEMO-ACCOUNT",
+      "classification": "STORE_TASK",
+      "reason": "Reviewer credentials must be entered in App Store Connect before submission.",
+      "reviewed_at": "2026-09-13",
+      "evidence": [
+        "Owner action tracked in release checklist"
+      ]
+    },
+    {
+      "id": "GOOGLE-12-TESTER-RULE",
+      "classification": "OWNER_LEGAL",
+      "reason": "Play Console account/testing eligibility is an owner/account action, not a code defect.",
+      "reviewed_at": "2026-09-13",
+      "evidence": [
+        "Verify against the current Play Console account state"
+      ]
+    },
+    {
+      "id": "EXAMPLE-DEFERRED-RULE",
+      "classification": "DEFERRED",
+      "reason": "Feature is intentionally outside the current release scope and cannot ship until re-reviewed.",
+      "reviewed_at": "2026-09-13",
+      "expires": "2026-12-01",
+      "evidence": [
+        "Release scope decision"
+      ]
+    }
+  ]
+}
