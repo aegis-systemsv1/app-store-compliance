@@ -46,4 +46,15 @@ jobs:
 
       - name: JSON well formed
         run: |
-          python3 -c "import json; json.load(open('data/rejection-patterns.json')); json.load(open('data/detection-recipes.json')); json.load(open('templates/portfolio.example.json')); print('json ok')"
+          python3 - <<'PY'
+          import json
+          for path in [
+              'data/rejection-patterns.json',
+              'data/detection-recipes.json',
+              'templates/portfolio.example.json',
+              'templates/findings-classification.example.json',
+          ]:
+              with open(path, encoding='utf-8') as fh:
+                  json.load(fh)
+              print('json ok:', path)
+          PY
