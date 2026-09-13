@@ -5,25 +5,45 @@
       "name": "Selayra",
       "path": "~/SELAYRA",
       "platforms": ["ios", "android"],
-      "regions": ["AU"]
+      "regions": ["AU"],
+      "store_readiness": {
+        "apple_developer_program": false,
+        "apple_agreements": false,
+        "app_store_connect_record": false,
+        "apple_privacy_answers": false,
+        "apple_age_rating": false,
+        "apple_encryption_declaration": false,
+        "apple_review_account": false,
+        "google_developer_verification": false,
+        "google_package_registration": false,
+        "google_data_safety": false,
+        "google_age_rating": false,
+        "production_iap_products": false,
+        "signed_ios_build": false,
+        "signed_android_build": false,
+        "physical_device_qa": false
+      }
     },
     {
       "name": "DwellVerify",
       "path": "~/DwellVerify",
       "platforms": ["ios", "android"],
-      "regions": ["AU"]
+      "regions": ["AU"],
+      "store_readiness": {}
     },
     {
       "name": "Dishly",
       "path": "~/DISHLY",
       "platforms": ["ios", "android"],
-      "regions": ["AU"]
+      "regions": ["AU"],
+      "store_readiness": {}
     },
     {
       "name": "Kintra",
       "path": "~/KINTRA",
       "platforms": ["ios", "android"],
-      "regions": ["AU"]
+      "regions": ["AU"],
+      "store_readiness": {}
     }
   ]
 }
