@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aegis-systemsv1/app-store-compliance/data/compliance-pack-schema.json",
+  "title": "AEGIS Compliance Pack",
+  "description": "Schema for a versioned, machine-readable export of compliance requirements. A consuming system (such as ShipSure) imports a pinned pack version, independently inspects an application against it, and computes its own release-readiness result. This schema defines data only. No field in a requirement record is a command to the consumer; in particular 'release_blocking_policy' is descriptive metadata the consumer must independently verify before honouring, never an instruction the pack can use to force a result.",
+  "type": "object",
+  "required": ["pack_schema_version", "pack_version", "source", "requirements"],
+  "additionalProperties": false,
+  "properties": {
+    "pack_schema_version": {
+      "type": "string",
+      "description": "Version of THIS schema the pack conforms to. A consumer must reject a pack whose pack_schema_version it does not understand rather than guess at a parse.",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "pack_version": {
+      "type": "string",
+      "description": "Author-controlled, informational version string for this pack content. Not used for identity by a consumer; a consumer should compute its own content hash for identity/pinning purposes."
+    },
+    "source": {
+      "type": "object",
+      "required": ["repo", "commit", "exported_at", "license", "license_origin"],
+      "additionalProperties": false,
+      "properties": {
+        "repo": { "type": "string", "description": "owner/name of the repository this pack was exported from." },
+        "commit": { "type": "string", "description": "Full git commit SHA the export was produced from." },
+        "tag": { "type": ["string", "null"], "description": "Git tag for this export, if one was created." },
+        "exported_at": { "type": "string", "format": "date-time" },
+        "exported_by": { "type": ["string", "null"] },
+        "license": {
+          "type": "string",
+          "const": "OpenRoots Agent License 2.3",
+          "description": "The whole repository, including this pack's content, is licensed under the OpenRoots Agent License 2.3. This field must not be altered by export tooling."
+        },
+        "license_origin": {
+          "type": "string",
+          "description": "Attribution chain back to the original upstream project and author. Must not be stripped by any consumer or re-export."
+        }
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/requirement" }
+    }
+  },
+  "definitions": {
+    "requirement": {
+      "type": "object",
+      "required": [
+        "requirement_id",
+        "jurisdiction",
+        "regulator",
+        "legislation",
+        "description",
+        "status",
+        "applicability_conditions",
+        "evidence_method",
+        "evidence_requirements",
+        "severity",
+        "release_blocking_policy",
+        "requirement_version",
+        "last_verified_date",
+        "change_history"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "requirement_id": {
+          "type": "string",
+          "description": "Stable identifier. Must never be reused for a different requirement; a superseding requirement gets a new id and the old one is withdrawn via status/change_history, never silently repurposed.",
+          "pattern": "^[A-Z0-9][A-Z0-9-]*$"
+        },
+        "jurisdiction": {
+          "type": "string",
+          "description": "ISO-3166-style or plain-English jurisdiction name, e.g. 'AU'. The model is jurisdiction-agnostic; v1 content happens to be Australian."
+        },
+        "regulator": { "type": "string" },
+        "legislation": {
+          "type": "object",
+          "required": ["title", "source_url", "source_retrieved_date"],
+          "additionalProperties": false,
+          "properties": {
+            "title": { "type": "string" },
+            "amending_act": { "type": ["string", "null"] },
+            "source_url": { "type": "string", "format": "uri" },
+            "secondary_source_url": { "type": ["string", "null"], "format": "uri" },
+            "source_retrieved_date": { "type": "string", "format": "date" }
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "AEGIS's own original wording describing the requirement. Must not be a verbatim copy of statutory or regulator text beyond a short, clearly attributable quotation."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["CURRENT_LAW", "ENACTED_FUTURE_COMMENCEMENT", "PROPOSED_CONSULTATION", "GUIDANCE_GOOD_PRACTICE"]
+        },
+        "effective_date": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Required (non-null) when status is ENACTED_FUTURE_COMMENCEMENT. Null for CURRENT_LAW (already in force, no future date needed), and typically null/unknown for PROPOSED_CONSULTATION (no settled commencement) and GUIDANCE_GOOD_PRACTICE (not a commencing instrument)."
+        },
+        "applicability_conditions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Plain-language conditions under which this requirement applies to an application. These are signals for a human applicability decision, never a basis for an automated APPLICABLE/NOT_APPLICABLE determination."
+        },
+        "evidence_method": {
+          "type": "string",
+          "enum": ["AUTOMATED", "HYBRID", "OWNER_EVIDENCE"],
+          "description": "How compliance with this requirement, OVERALL, can be proven. AUTOMATED: deterministic evidence can fully establish the outcome. HYBRID: deterministic evidence establishes part of it; the remainder needs owner evidence. OWNER_EVIDENCE: no deterministic evidence is possible; an explicit owner attestation is required and must never be inferred from the absence of a finding. (NOT_APPLICABLE is not a pack-level value here -- it is a per-project applicability outcome recorded by the consumer, not asserted by the pack.)"
+        },
+        "evidence_requirements": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["evidence_id", "description", "method"],
+            "additionalProperties": false,
+            "properties": {
+              "evidence_id": { "type": "string" },
+              "description": { "type": "string" },
+              "method": { "type": "string", "enum": ["AUTOMATED", "OWNER_EVIDENCE"] },
+              "note": { "type": ["string", "null"] },
+              "covers_catalogue_items": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Free-text cross-reference to the originating catalogue item(s) this evidence item addresses, for traceability. Informational only."
+              }
+            }
+          }
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low"],
+          "description": "AEGIS's assessment of impact if this requirement is not met, once applicable and blocking-capable. Descriptive only -- a consumer determines actual blocking behaviour independently (see release_blocking_policy)."
+        },
+        "release_blocking_policy": {
+          "type": "string",
+          "enum": ["blocking_once_current_and_effective", "advisory_only"],
+          "description": "Descriptive metadata only. A consumer MUST independently derive actual blocking behaviour from status + effective_date + its own current date, and must never treat this field as authoritative on its own. A value of 'blocking_once_current_and_effective' on a PROPOSED_CONSULTATION or GUIDANCE_GOOD_PRACTICE requirement, or on an ENACTED_FUTURE_COMMENCEMENT requirement before its effective_date, must still never block -- the consumer's own status/date logic is the sole authority."
+        },
+        "requirement_version": { "type": "integer", "minimum": 1 },
+        "last_verified_date": { "type": "string", "format": "date" },
+        "change_history": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["requirement_version", "changed_at", "change", "pack_version_introduced"],
+            "additionalProperties": false,
+            "properties": {
+              "requirement_version": { "type": "integer", "minimum": 1 },
+              "changed_at": { "type": "string", "format": "date" },
+              "change": { "type": "string" },
+              "pack_version_introduced": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

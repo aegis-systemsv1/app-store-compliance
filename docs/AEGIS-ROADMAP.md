@@ -134,6 +134,29 @@ ERROR
 
 `PASS` is only possible when there is no active Critical or High code finding, no owner/store/legal blocker, no active deferral, and every tracked store-readiness item is complete.
 
+### 11. Compliance Pack export
+
+Implemented in `scripts/export-compliance-pack.py` and
+`data/compliance-pack-requirements.json`. See `docs/COMPLIANCE_PACK.md`.
+
+- a versioned, machine-readable JSON schema (`data/compliance-pack-schema.json`)
+  for compliance requirement definitions, separate from this repository's own
+  app-store rejection-pattern detection
+- jurisdiction, regulator, status (current law / future commencement /
+  proposed / guidance), effective date, applicability conditions, evidence
+  method (automated / hybrid / owner-evidence), required evidence, severity,
+  and source citation per requirement
+- a v1 Privacy & Data Governance catalogue (12 requirements, Australian
+  jurisdiction, covering 31 underlying discovery items) with real primary
+  sources
+- export stamps real git commit/tag/export-time provenance and preserves
+  this repository's licence/attribution block
+- a consuming system (ShipSure, or any other schema-conformant consumer)
+  independently derives actual release-blocking behaviour from status and
+  effective date; `release_blocking_policy` in the pack is descriptive
+  metadata only, never an instruction
+- test coverage in `scripts/export-compliance-pack-test.sh`, wired into CI
+
 ## Safety invariants
 
 1. Do not weaken upstream rules to obtain a green result.
