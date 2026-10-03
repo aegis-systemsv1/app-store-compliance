@@ -1,0 +1,592 @@
+{
+  "catalogue_version": "1.0.0",
+  "catalogue_description": "AEGIS Privacy & Data Governance requirement catalogue, v1. Authored source for the Compliance Pack export (see scripts/export-compliance-pack.py). Jurisdiction scope for v1 is Australia; the schema itself is jurisdiction-agnostic so other jurisdictions can be added later without a schema change. Every item from the original 31-item Privacy & Data Governance discovery list is represented as a catalogue item below, covered by one or more requirement records' evidence_requirements[].covers_catalogue_items. No requirement description below copies statutory or regulator text beyond short, clearly attributed quotation; full text is always via source_url.",
+  "catalogue_items_covered": [
+    "personal_information_collected",
+    "sensitive_information",
+    "health_information",
+    "financial_information",
+    "location_information",
+    "device_behavioural_information",
+    "generated_inferred_personal_information",
+    "collection_source",
+    "purpose_of_collection",
+    "necessity_of_collection",
+    "database_storage_location",
+    "third_party_processors_subprocessors",
+    "external_apis",
+    "analytics_tracking_sdks",
+    "cookies_pixels",
+    "ai_llm_providers",
+    "automated_decision_making",
+    "data_used_in_automated_decisions",
+    "australia_vs_overseas_processing",
+    "authentication_access_controls",
+    "encryption",
+    "retention_periods",
+    "deletion_behaviour",
+    "account_deletion",
+    "data_access_export",
+    "correction_mechanisms",
+    "consent",
+    "collection_notices",
+    "privacy_policy",
+    "data_breach_arrangements",
+    "childrens_data"
+  ],
+  "requirements": [
+    {
+      "requirement_id": "AU-PRIVACY-APP1-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Schedule 1, Australian Privacy Principle 1 (open and transparent management of personal information)",
+        "amending_act": null,
+        "source_url": "https://www.legislation.gov.au/C2004A03712/latest",
+        "secondary_source_url": "https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines/chapter-1-app-1-open-and-transparent-management-of-personal-information",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "An APP entity must manage personal information in an open and transparent way, including maintaining a clearly expressed and up-to-date privacy policy describing what personal information it collects and holds, how, why, and what happens to it, and how an individual can access, correct, or complain about its handling.",
+      "status": "CURRENT_LAW",
+      "effective_date": null,
+      "applicability_conditions": [
+        "application collects, holds, uses, or discloses personal information about individuals"
+      ],
+      "evidence_method": "HYBRID",
+      "evidence_requirements": [
+        {
+          "evidence_id": "privacy-policy-present",
+          "description": "A privacy policy document is present and discoverable (in the committed repository, or on a registered web target).",
+          "method": "AUTOMATED",
+          "note": "Presence/discoverability only, not a legal reading of adequacy.",
+          "covers_catalogue_items": ["privacy_policy"]
+        },
+        {
+          "evidence_id": "privacy-policy-adequacy",
+          "description": "The privacy policy accurately and completely describes the entity's actual personal-information practices.",
+          "method": "OWNER_EVIDENCE",
+          "note": "Adequacy and accuracy of content against real practice is a judgment call, not code-derivable.",
+          "covers_catalogue_items": ["privacy_policy", "collection_notices"]
+        }
+      ],
+      "severity": "medium",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-APP3-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Schedule 1, Australian Privacy Principle 3 (collection of solicited personal information)",
+        "amending_act": null,
+        "source_url": "https://www.legislation.gov.au/C2004A03712/latest",
+        "secondary_source_url": "https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines/chapter-3-app-3-collection-of-solicited-personal-information",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "An APP entity must only collect personal information that is reasonably necessary for its functions or activities, and may only collect sensitive information (which includes health information) with the individual's consent or under a specific permitted exception. This covers what categories of personal information are collected, from what source, for what purpose, and whether collection is necessary.",
+      "status": "CURRENT_LAW",
+      "effective_date": null,
+      "applicability_conditions": [
+        "application collects any personal information directly or indirectly from individuals"
+      ],
+      "evidence_method": "HYBRID",
+      "evidence_requirements": [
+        {
+          "evidence_id": "financial-data-signal",
+          "description": "A payment-processing or financial-data dependency is present in the application's declared dependencies.",
+          "method": "AUTOMATED",
+          "note": "Presence of a payment SDK is a signal that financial information is likely collected, never a complete inventory.",
+          "covers_catalogue_items": ["financial_information"]
+        },
+        {
+          "evidence_id": "location-data-signal",
+          "description": "A geolocation or mapping dependency is present in the application's declared dependencies.",
+          "method": "AUTOMATED",
+          "note": "Presence signal only.",
+          "covers_catalogue_items": ["location_information"]
+        },
+        {
+          "evidence_id": "device-behavioural-signal",
+          "description": "An analytics or device-telemetry dependency is present (reuses the existing third-party/analytics detection).",
+          "method": "AUTOMATED",
+          "note": "Presence signal only.",
+          "covers_catalogue_items": ["device_behavioural_information"]
+        },
+        {
+          "evidence_id": "personal-information-inventory",
+          "description": "The actual categories of personal, sensitive, and health information collected by the application.",
+          "method": "OWNER_EVIDENCE",
+          "note": "Cannot be reliably enumerated from static code analysis alone.",
+          "covers_catalogue_items": ["personal_information_collected", "sensitive_information", "health_information"]
+        },
+        {
+          "evidence_id": "generated-inferred-information",
+          "description": "Whether the application generates or infers new personal information about an individual (e.g. a derived score or profile).",
+          "method": "OWNER_EVIDENCE",
+          "note": "A business-logic question, not visible from dependency or schema inspection alone.",
+          "covers_catalogue_items": ["generated_inferred_personal_information"]
+        },
+        {
+          "evidence_id": "collection-source",
+          "description": "Whether personal information is collected directly from the individual or from a third party.",
+          "method": "OWNER_EVIDENCE",
+          "covers_catalogue_items": ["collection_source"]
+        },
+        {
+          "evidence_id": "purpose-and-necessity",
+          "description": "The stated purpose of collection and whether collection is reasonably necessary for that purpose.",
+          "method": "OWNER_EVIDENCE",
+          "note": "Inherently a judgment call about necessity, not a fact a scanner can establish.",
+          "covers_catalogue_items": ["purpose_of_collection", "necessity_of_collection"]
+        },
+        {
+          "evidence_id": "sensitive-information-consent",
+          "description": "Consent was obtained for collection of sensitive or health information, or a specific exception applies.",
+          "method": "OWNER_EVIDENCE",
+          "covers_catalogue_items": ["consent", "sensitive_information", "health_information"]
+        }
+      ],
+      "severity": "high",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-APP5-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Schedule 1, Australian Privacy Principle 5 (notification of the collection of personal information)",
+        "amending_act": null,
+        "source_url": "https://www.legislation.gov.au/C2004A03712/latest",
+        "secondary_source_url": "https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "An APP entity must take reasonable steps to notify an individual, at or before the time of collection (or as soon as practicable after), of specified matters including what is collected, why, to whom it may be disclosed, and how the individual can access or complain about it.",
+      "status": "CURRENT_LAW",
+      "effective_date": null,
+      "applicability_conditions": [
+        "application collects personal information directly or indirectly from individuals"
+      ],
+      "evidence_method": "HYBRID",
+      "evidence_requirements": [
+        {
+          "evidence_id": "collection-notice-present",
+          "description": "A collection notice (standalone, or as a section of the privacy policy) is present and discoverable.",
+          "method": "AUTOMATED",
+          "covers_catalogue_items": ["collection_notices"]
+        },
+        {
+          "evidence_id": "collection-notice-content",
+          "description": "The notice actually covers the matters APP 5 requires for this application's real collection practices.",
+          "method": "OWNER_EVIDENCE",
+          "covers_catalogue_items": ["collection_notices"]
+        }
+      ],
+      "severity": "medium",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-APP6-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Schedule 1, Australian Privacy Principle 6 (use or disclosure of personal information)",
+        "amending_act": null,
+        "source_url": "https://www.legislation.gov.au/C2004A03712/latest",
+        "secondary_source_url": "https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines/chapter-6-app-6-use-or-disclosure-of-personal-information",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "An APP entity may only use or disclose personal information for the primary purpose it was collected for, or a secondary purpose that falls within a specific exception (including consent). Disclosure to a third-party processor, subprocessor, or external API/service is a disclosure for the purposes of this principle.",
+      "status": "CURRENT_LAW",
+      "effective_date": null,
+      "applicability_conditions": [
+        "application discloses personal information to any third party, including a service provider, processor, or external API"
+      ],
+      "evidence_method": "HYBRID",
+      "evidence_requirements": [
+        {
+          "evidence_id": "third-party-processor-dependencies",
+          "description": "Declared dependencies on known third-party processors, analytics providers, or tracking SDKs.",
+          "method": "AUTOMATED",
+          "note": "Reuses the existing third-party/analytics dependency-declaration check. Presence of a dependency is evidence a processor exists; it is not evidence about what data is actually sent to it.",
+          "covers_catalogue_items": ["third_party_processors_subprocessors", "analytics_tracking_sdks"]
+        },
+        {
+          "evidence_id": "ai-llm-provider-dependencies",
+          "description": "Declared dependencies on known AI/LLM provider SDKs.",
+          "method": "AUTOMATED",
+          "covers_catalogue_items": ["ai_llm_providers"]
+        },
+        {
+          "evidence_id": "external-api-endpoints",
+          "description": "Outbound third-party API endpoints referenced in committed configuration or source.",
+          "method": "AUTOMATED",
+          "note": "A narrow, bounded scan of declared/configured outbound hostnames, not a runtime network trace.",
+          "covers_catalogue_items": ["external_apis"]
+        },
+        {
+          "evidence_id": "cookies-and-pixels",
+          "description": "Cookies, tracking pixels, or similar identifiers observed on a registered, inspected web target's landing page.",
+          "method": "AUTOMATED",
+          "note": "A single-page, automated-request scan; not a full-site audit.",
+          "covers_catalogue_items": ["cookies_pixels"]
+        },
+        {
+          "evidence_id": "subprocessor-chain",
+          "description": "Whether a declared third-party processor itself uses further subprocessors.",
+          "method": "OWNER_EVIDENCE",
+          "note": "A processor's own subprocessor chain is not visible from the inspected application's own code or config.",
+          "covers_catalogue_items": ["third_party_processors_subprocessors"]
+        },
+        {
+          "evidence_id": "disclosure-purpose-basis",
+          "description": "The legal basis (primary purpose, consent, or a specific exception) for each actual disclosure.",
+          "method": "OWNER_EVIDENCE",
+          "covers_catalogue_items": ["consent"]
+        }
+      ],
+      "severity": "high",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-APP8-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Schedule 1, Australian Privacy Principle 8 (cross-border disclosure of personal information)",
+        "amending_act": null,
+        "source_url": "https://www.legislation.gov.au/C2004A03712/latest",
+        "secondary_source_url": "https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines/chapter-8-app-8-cross-border-disclosure-of-personal-information",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "Before disclosing personal information to an overseas recipient, an APP entity must take reasonable steps to ensure the recipient does not breach the Australian Privacy Principles in relation to that information, subject to specific exceptions.",
+      "status": "CURRENT_LAW",
+      "effective_date": null,
+      "applicability_conditions": [
+        "application stores or processes personal information outside Australia, including via a third-party processor's infrastructure"
+      ],
+      "evidence_method": "HYBRID",
+      "evidence_requirements": [
+        {
+          "evidence_id": "non-au-endpoint-signal",
+          "description": "A declared third-party processor or API endpoint is known to be hosted or headquartered outside Australia.",
+          "method": "AUTOMATED",
+          "note": "A consistency-check signal only. An owner declaration of 'no overseas processing' that conflicts with a detected non-AU endpoint should be surfaced, but a detected non-AU endpoint alone does not itself prove a compliance failure, and its absence never proves all processing is onshore.",
+          "covers_catalogue_items": ["australia_vs_overseas_processing"]
+        },
+        {
+          "evidence_id": "actual-data-residency",
+          "description": "Where personal information is actually stored and processed, and what safeguards apply to any overseas recipient.",
+          "method": "OWNER_EVIDENCE",
+          "covers_catalogue_items": ["australia_vs_overseas_processing", "database_storage_location"]
+        }
+      ],
+      "severity": "high",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-APP11-SEC-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Schedule 1, Australian Privacy Principle 11.1 (security of personal information)",
+        "amending_act": null,
+        "source_url": "https://www.legislation.gov.au/C2004A03712/latest",
+        "secondary_source_url": "https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "An APP entity holding personal information must take reasonable steps to protect it from misuse, interference, loss, and unauthorised access, modification, or disclosure.",
+      "status": "CURRENT_LAW",
+      "effective_date": null,
+      "applicability_conditions": [
+        "application holds personal information in any form of storage"
+      ],
+      "evidence_method": "HYBRID",
+      "evidence_requirements": [
+        {
+          "evidence_id": "transport-encryption",
+          "description": "Connections to the application's registered web target use valid TLS.",
+          "method": "AUTOMATED",
+          "note": "Reuses the existing TLS/certificate inspection check.",
+          "covers_catalogue_items": ["encryption"]
+        },
+        {
+          "evidence_id": "access-controls",
+          "description": "Authentication and row-level/tenant access controls are present and enforced for stored personal information.",
+          "method": "AUTOMATED",
+          "note": "Reuses existing Supabase Auth / RLS evidence where a database target is registered.",
+          "covers_catalogue_items": ["authentication_access_controls"]
+        },
+        {
+          "evidence_id": "at-rest-encryption",
+          "description": "Personal information is encrypted at rest.",
+          "method": "OWNER_EVIDENCE",
+          "note": "At-rest encryption is typically a platform/hosting configuration choice not visible from application code.",
+          "covers_catalogue_items": ["encryption"]
+        },
+        {
+          "evidence_id": "reasonable-steps-overall",
+          "description": "Whether the combination of technical and organisational measures amounts to 'reasonable steps' for this application's risk profile.",
+          "method": "OWNER_EVIDENCE",
+          "note": "A holistic judgment call; automated evidence can only ever support part of it.",
+          "covers_catalogue_items": ["authentication_access_controls", "encryption"]
+        }
+      ],
+      "severity": "high",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-APP11-RET-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Schedule 1, Australian Privacy Principle 11.2 (destruction or de-identification of personal information no longer needed)",
+        "amending_act": null,
+        "source_url": "https://www.legislation.gov.au/C2004A03712/latest",
+        "secondary_source_url": "https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "An APP entity must take reasonable steps to destroy or de-identify personal information it no longer needs for any permitted purpose, subject to legal retention obligations.",
+      "status": "CURRENT_LAW",
+      "effective_date": null,
+      "applicability_conditions": [
+        "application holds personal information that is or may become no longer needed for the purpose it was collected for"
+      ],
+      "evidence_method": "OWNER_EVIDENCE",
+      "evidence_requirements": [
+        {
+          "evidence_id": "retention-policy",
+          "description": "A defined retention period exists for each category of personal information held.",
+          "method": "OWNER_EVIDENCE",
+          "note": "Not derivable from code; this is an organisational policy and process question.",
+          "covers_catalogue_items": ["retention_periods"]
+        },
+        {
+          "evidence_id": "deletion-behaviour",
+          "description": "Personal information is actually destroyed or de-identified in line with the retention policy, including on request.",
+          "method": "OWNER_EVIDENCE",
+          "covers_catalogue_items": ["deletion_behaviour", "account_deletion"]
+        }
+      ],
+      "severity": "medium",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-APP12-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Schedule 1, Australian Privacy Principle 12 (access to personal information)",
+        "amending_act": null,
+        "source_url": "https://www.legislation.gov.au/C2004A03712/latest",
+        "secondary_source_url": "https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines/chapter-12-app-12-access-to-personal-information",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "An APP entity that holds personal information about an individual must, on request, give that individual access to it, subject to specific exceptions.",
+      "status": "CURRENT_LAW",
+      "effective_date": null,
+      "applicability_conditions": [
+        "application holds personal information that an individual could reasonably request access to or export of"
+      ],
+      "evidence_method": "OWNER_EVIDENCE",
+      "evidence_requirements": [
+        {
+          "evidence_id": "access-export-mechanism",
+          "description": "A working mechanism exists for an individual to access or export their personal information held by the application.",
+          "method": "OWNER_EVIDENCE",
+          "note": "Whether a code-level export feature genuinely satisfies this for a given application is a functional/process question beyond static evidence; a future version could upgrade this to HYBRID if a reliable functional test is built.",
+          "covers_catalogue_items": ["data_access_export"]
+        }
+      ],
+      "severity": "medium",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-APP13-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Schedule 1, Australian Privacy Principle 13 (correction of personal information)",
+        "amending_act": null,
+        "source_url": "https://www.legislation.gov.au/C2004A03712/latest",
+        "secondary_source_url": "https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "An APP entity must take reasonable steps to correct personal information it holds to ensure it is accurate, up to date, complete, relevant, and not misleading, on request or on its own initiative.",
+      "status": "CURRENT_LAW",
+      "effective_date": null,
+      "applicability_conditions": [
+        "application allows individuals to be identified and holds personal information about them that could become inaccurate or outdated"
+      ],
+      "evidence_method": "OWNER_EVIDENCE",
+      "evidence_requirements": [
+        {
+          "evidence_id": "correction-mechanism",
+          "description": "A working mechanism exists for an individual to request or make a correction to their personal information.",
+          "method": "OWNER_EVIDENCE",
+          "covers_catalogue_items": ["correction_mechanisms"]
+        }
+      ],
+      "severity": "low",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-NDB-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Part IIIC (Notifiable Data Breaches scheme)",
+        "amending_act": null,
+        "source_url": "https://www.legislation.gov.au/C2004A03712/latest",
+        "secondary_source_url": "https://www.oaic.gov.au/privacy/notifiable-data-breaches/preventing-preparing-for-and-responding-to-data-breaches/data-breach-preparation-and-response/part-1-data-breaches-and-the-australian-privacy-act",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "An entity bound by the Notifiable Data Breaches scheme must notify affected individuals and the OAIC when it has reasonable grounds to believe an eligible data breach -- unauthorised access to, disclosure of, or loss of personal information likely to result in serious harm -- has occurred. In force since 22 February 2018.",
+      "status": "CURRENT_LAW",
+      "effective_date": null,
+      "applicability_conditions": [
+        "entity is an APP entity bound by the Notifiable Data Breaches scheme (most private-sector organisations with annual turnover over AUD 3 million, plus certain entities regardless of turnover such as health service providers and credit reporting bodies)"
+      ],
+      "evidence_method": "OWNER_EVIDENCE",
+      "evidence_requirements": [
+        {
+          "evidence_id": "breach-response-plan",
+          "description": "A data breach response plan and notification process exists and is operational.",
+          "method": "OWNER_EVIDENCE",
+          "note": "An organisational and procedural fact, not derivable from application code.",
+          "covers_catalogue_items": ["data_breach_arrangements"]
+        }
+      ],
+      "severity": "high",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-ADM-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Privacy Act 1988 (Cth), Schedule 1, Australian Privacy Principle 1.7-1.9 (automated decision-making transparency)",
+        "amending_act": "Privacy and Other Legislation Amendment Act 2024 (Cth), Part 15",
+        "source_url": "https://www.legislation.gov.au/C2024A00128/asmade/text",
+        "secondary_source_url": "https://www.oaic.gov.au/engage-with-us/consultations/consultation-on-guidance-for-transparency-in-automated-decision-making",
+        "source_retrieved_date": "2026-10-01"
+      },
+      "description": "Where personal information is used to operate a computer program that makes, or does something substantially and directly related to making, a decision that could reasonably be expected to significantly affect an individual's rights or interests, the entity's APP Privacy Policy must disclose: the kinds of personal information used, the kinds of decisions made solely by such programs, and the kinds of decisions where such programs do something substantially and directly related to making the decision. Commences 10 December 2026.",
+      "status": "ENACTED_FUTURE_COMMENCEMENT",
+      "effective_date": "2026-12-10",
+      "applicability_conditions": [
+        "application uses personal information to operate a computer program",
+        "that program makes, or substantially/directly contributes to making, a decision",
+        "the decision could reasonably be expected to significantly affect an individual's rights or interests"
+      ],
+      "evidence_method": "HYBRID",
+      "evidence_requirements": [
+        {
+          "evidence_id": "privacy-policy-disclosure-categories",
+          "description": "Privacy policy addresses: kinds of personal information used; kinds of decisions made solely by the program; kinds of decisions where the program substantially/directly contributes.",
+          "method": "AUTOMATED",
+          "note": "Keyword/structural presence check against a committed or discovered privacy policy. Presence, not a legal reading.",
+          "covers_catalogue_items": ["automated_decision_making", "data_used_in_automated_decisions", "privacy_policy"]
+        },
+        {
+          "evidence_id": "applicability-determination",
+          "description": "Whether the application genuinely falls within APP 1.7's scope is a judgment call tied to the specific decision logic and its real-world effect on individuals.",
+          "method": "OWNER_EVIDENCE",
+          "note": "Cannot be determined from code. Requires an explicit owner applicability decision with a stated reason.",
+          "covers_catalogue_items": ["automated_decision_making", "data_used_in_automated_decisions"]
+        }
+      ],
+      "severity": "medium",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-01",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-01", "change": "initial authoring, re-expressing ShipSure's prior hand-coded COMPLIANCE-AUDM-001 rule as a pack-authored requirement", "pack_version_introduced": "1.0.0" }
+      ]
+    },
+    {
+      "requirement_id": "AU-PRIVACY-CHILDRENS-001",
+      "jurisdiction": "AU",
+      "regulator": "OAIC",
+      "legislation": {
+        "title": "Children's Online Privacy Code (an APP Code under the Privacy Act 1988 (Cth), mandated by the Privacy and Other Legislation Amendment Act 2024)",
+        "amending_act": "Privacy and Other Legislation Amendment Act 2024 (Cth)",
+        "source_url": "https://www.oaic.gov.au/privacy/privacy-registers/privacy-codes/childrens-online-privacy-code",
+        "secondary_source_url": "https://www.oaic.gov.au/engage-with-us/consultations/draft-childrens-online-privacy-code-consultation-for-industry,-civil-society,-academia",
+        "source_retrieved_date": "2026-10-02"
+      },
+      "description": "The OAIC is developing a Children's Online Privacy Code, an APP Code specifying how online services (including apps, games, and websites) that are likely to be accessed by children, or primarily directed at children, must comply with the Australian Privacy Principles, plus additional requirements for handling children's personal information. The draft Code underwent public consultation; the Code must be registered by 10 December 2026. Its own commencement date, as distinct from the registration deadline, had not been settled as of this requirement's last-verified date.",
+      "status": "PROPOSED_CONSULTATION",
+      "effective_date": null,
+      "applicability_conditions": [
+        "application is an online service likely to be accessed by children, or primarily directed at or concerned with the activities of children"
+      ],
+      "evidence_method": "OWNER_EVIDENCE",
+      "evidence_requirements": [
+        {
+          "evidence_id": "childrens-applicability",
+          "description": "Whether the application is, in substance, likely to be accessed by children or primarily concerned with children's activities.",
+          "method": "OWNER_EVIDENCE",
+          "note": "Not derivable from code; gated by the applicability model so this never becomes a blocking finding for an application it plainly does not describe.",
+          "covers_catalogue_items": ["childrens_data"]
+        }
+      ],
+      "severity": "medium",
+      "release_blocking_policy": "advisory_only",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-02",
+      "change_history": [
+        { "requirement_version": 1, "changed_at": "2026-10-02", "change": "initial authoring; status is PROPOSED_CONSULTATION and must be re-verified once the Code is registered and a commencement date is settled", "pack_version_introduced": "1.0.0" }
+      ]
+    }
+  ]
+}
