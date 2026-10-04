@@ -4,7 +4,12 @@
   "title": "AEGIS Compliance Pack",
   "description": "Schema for a versioned, machine-readable export of compliance requirements. A consuming system (such as ShipSure) imports a pinned pack version, independently inspects an application against it, and computes its own release-readiness result. This schema defines data only. No field in a requirement record is a command to the consumer; in particular 'release_blocking_policy' is descriptive metadata the consumer must independently verify before honouring, never an instruction the pack can use to force a result.",
   "type": "object",
-  "required": ["pack_schema_version", "pack_version", "source", "requirements"],
+  "required": [
+    "pack_schema_version",
+    "pack_version",
+    "source",
+    "requirements"
+  ],
   "additionalProperties": false,
   "properties": {
     "pack_schema_version": {
@@ -18,14 +23,40 @@
     },
     "source": {
       "type": "object",
-      "required": ["repo", "commit", "exported_at", "license", "license_origin"],
+      "required": [
+        "repo",
+        "commit",
+        "exported_at",
+        "license",
+        "license_origin"
+      ],
       "additionalProperties": false,
       "properties": {
-        "repo": { "type": "string", "description": "owner/name of the repository this pack was exported from." },
-        "commit": { "type": "string", "description": "Full git commit SHA the export was produced from." },
-        "tag": { "type": ["string", "null"], "description": "Git tag for this export, if one was created." },
-        "exported_at": { "type": "string", "format": "date-time" },
-        "exported_by": { "type": ["string", "null"] },
+        "repo": {
+          "type": "string",
+          "description": "owner/name of the repository this pack was exported from."
+        },
+        "commit": {
+          "type": "string",
+          "description": "Full git commit SHA the export was produced from."
+        },
+        "tag": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Git tag for this export, if one was created."
+        },
+        "exported_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "exported_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "license": {
           "type": "string",
           "const": "OpenRoots Agent License 2.3",
@@ -40,7 +71,9 @@
     "requirements": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/definitions/requirement" }
+      "items": {
+        "$ref": "#/definitions/requirement"
+      }
     }
   },
   "definitions": {
@@ -73,17 +106,42 @@
           "type": "string",
           "description": "ISO-3166-style or plain-English jurisdiction name, e.g. 'AU'. The model is jurisdiction-agnostic; v1 content happens to be Australian."
         },
-        "regulator": { "type": "string" },
+        "regulator": {
+          "type": "string"
+        },
         "legislation": {
           "type": "object",
-          "required": ["title", "source_url", "source_retrieved_date"],
+          "required": [
+            "title",
+            "source_url",
+            "source_retrieved_date"
+          ],
           "additionalProperties": false,
           "properties": {
-            "title": { "type": "string" },
-            "amending_act": { "type": ["string", "null"] },
-            "source_url": { "type": "string", "format": "uri" },
-            "secondary_source_url": { "type": ["string", "null"], "format": "uri" },
-            "source_retrieved_date": { "type": "string", "format": "date" }
+            "title": {
+              "type": "string"
+            },
+            "amending_act": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "source_url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "secondary_source_url": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "uri"
+            },
+            "source_retrieved_date": {
+              "type": "string",
+              "format": "date"
+            }
           }
         },
         "description": {
@@ -92,22 +150,39 @@
         },
         "status": {
           "type": "string",
-          "enum": ["CURRENT_LAW", "ENACTED_FUTURE_COMMENCEMENT", "PROPOSED_CONSULTATION", "GUIDANCE_GOOD_PRACTICE"]
+          "enum": [
+            "CURRENT_LAW",
+            "ENACTED_FUTURE_COMMENCEMENT",
+            "PROPOSED_CONSULTATION",
+            "GUIDANCE_GOOD_PRACTICE",
+            "PLATFORM_POLICY_CURRENT",
+            "PLATFORM_POLICY_FUTURE"
+          ],
+          "description": "Legal status of a statutory requirement (CURRENT_LAW, ENACTED_FUTURE_COMMENCEMENT, PROPOSED_CONSULTATION, GUIDANCE_GOOD_PRACTICE), or, since pack schema 1.1.0, the status of an app-store platform policy that is not law but is enforced by the store at submission/review: PLATFORM_POLICY_CURRENT (in force now) or PLATFORM_POLICY_FUTURE (announced with a fixed effective_date). A consumer applies the same date logic to PLATFORM_POLICY_FUTURE as to ENACTED_FUTURE_COMMENCEMENT. A platform policy is never labelled law."
         },
         "effective_date": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "format": "date",
-          "description": "Required (non-null) when status is ENACTED_FUTURE_COMMENCEMENT. Null for CURRENT_LAW (already in force, no future date needed), and typically null/unknown for PROPOSED_CONSULTATION (no settled commencement) and GUIDANCE_GOOD_PRACTICE (not a commencing instrument)."
+          "description": "Required (non-null) when status is ENACTED_FUTURE_COMMENCEMENT or PLATFORM_POLICY_FUTURE. Null for CURRENT_LAW and PLATFORM_POLICY_CURRENT (already in force), and typically null/unknown for PROPOSED_CONSULTATION and GUIDANCE_GOOD_PRACTICE."
         },
         "applicability_conditions": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "minItems": 1,
           "description": "Plain-language conditions under which this requirement applies to an application. These are signals for a human applicability decision, never a basis for an automated APPLICABLE/NOT_APPLICABLE determination."
         },
         "evidence_method": {
           "type": "string",
-          "enum": ["AUTOMATED", "HYBRID", "OWNER_EVIDENCE"],
+          "enum": [
+            "AUTOMATED",
+            "HYBRID",
+            "OWNER_EVIDENCE"
+          ],
           "description": "How compliance with this requirement, OVERALL, can be proven. AUTOMATED: deterministic evidence can fully establish the outcome. HYBRID: deterministic evidence establishes part of it; the remainder needs owner evidence. OWNER_EVIDENCE: no deterministic evidence is possible; an explicit owner attestation is required and must never be inferred from the absence of a finding. (NOT_APPLICABLE is not a pack-level value here -- it is a per-project applicability outcome recorded by the consumer, not asserted by the pack.)"
         },
         "evidence_requirements": {
@@ -115,16 +190,37 @@
           "minItems": 1,
           "items": {
             "type": "object",
-            "required": ["evidence_id", "description", "method"],
+            "required": [
+              "evidence_id",
+              "description",
+              "method"
+            ],
             "additionalProperties": false,
             "properties": {
-              "evidence_id": { "type": "string" },
-              "description": { "type": "string" },
-              "method": { "type": "string", "enum": ["AUTOMATED", "OWNER_EVIDENCE"] },
-              "note": { "type": ["string", "null"] },
+              "evidence_id": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string",
+                "enum": [
+                  "AUTOMATED",
+                  "OWNER_EVIDENCE"
+                ]
+              },
+              "note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "covers_catalogue_items": {
                 "type": "array",
-                "items": { "type": "string" },
+                "items": {
+                  "type": "string"
+                },
                 "description": "Free-text cross-reference to the originating catalogue item(s) this evidence item addresses, for traceability. Informational only."
               }
             }
@@ -132,30 +228,118 @@
         },
         "severity": {
           "type": "string",
-          "enum": ["critical", "high", "medium", "low"],
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low"
+          ],
           "description": "AEGIS's assessment of impact if this requirement is not met, once applicable and blocking-capable. Descriptive only -- a consumer determines actual blocking behaviour independently (see release_blocking_policy)."
         },
         "release_blocking_policy": {
           "type": "string",
-          "enum": ["blocking_once_current_and_effective", "advisory_only"],
+          "enum": [
+            "blocking_once_current_and_effective",
+            "advisory_only"
+          ],
           "description": "Descriptive metadata only. A consumer MUST independently derive actual blocking behaviour from status + effective_date + its own current date, and must never treat this field as authoritative on its own. A value of 'blocking_once_current_and_effective' on a PROPOSED_CONSULTATION or GUIDANCE_GOOD_PRACTICE requirement, or on an ENACTED_FUTURE_COMMENCEMENT requirement before its effective_date, must still never block -- the consumer's own status/date logic is the sole authority."
         },
-        "requirement_version": { "type": "integer", "minimum": 1 },
-        "last_verified_date": { "type": "string", "format": "date" },
+        "requirement_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "last_verified_date": {
+          "type": "string",
+          "format": "date"
+        },
         "change_history": {
           "type": "array",
           "minItems": 1,
           "items": {
             "type": "object",
-            "required": ["requirement_version", "changed_at", "change", "pack_version_introduced"],
+            "required": [
+              "requirement_version",
+              "changed_at",
+              "change",
+              "pack_version_introduced"
+            ],
             "additionalProperties": false,
             "properties": {
-              "requirement_version": { "type": "integer", "minimum": 1 },
-              "changed_at": { "type": "string", "format": "date" },
-              "change": { "type": "string" },
-              "pack_version_introduced": { "type": "string" }
+              "requirement_version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "changed_at": {
+                "type": "string",
+                "format": "date"
+              },
+              "change": {
+                "type": "string"
+              },
+              "pack_version_introduced": {
+                "type": "string"
+              }
             }
           }
+        },
+        "applies_to_platforms": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "web",
+              "ios",
+              "android",
+              "macos",
+              "windows"
+            ]
+          },
+          "description": "Since 1.1.0. The release platforms this requirement concerns. Absent means platform-agnostic (applies whatever platforms a product targets). A consumer must treat a requirement whose platforms are all outside a product's selected platforms as not applicable to that product, and must never apply a platform-agnostic requirement more than once per product."
+        },
+        "store": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "APPLE_APP_STORE",
+            "GOOGLE_PLAY",
+            null
+          ],
+          "description": "Since 1.1.0. The app store whose submission/review this requirement concerns, if any. Informational grouping for store-readiness views; applicability still comes from applies_to_platforms."
+        },
+        "submission_category": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "CODE_AND_BUILD",
+            "PRIVACY_AND_DATA",
+            "PERMISSIONS",
+            "AUTHENTICATION",
+            "PAYMENTS",
+            "CONTENT_AND_SAFETY",
+            "STORE_LISTING",
+            "REVIEWER_ACCESS",
+            "LEGAL_AND_OWNER_DECLARATIONS",
+            "SUBMISSION_ASSETS",
+            null
+          ],
+          "description": "Since 1.1.0. Grouping for store-readiness views. Informational only."
+        },
+        "source_reference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Since 1.1.0. The official rule identifier where the source has one, e.g. an App Review Guidelines section number or a Play policy name."
+        },
+        "universal_for_platforms": {
+          "type": "boolean",
+          "description": "Since 1.1.0. True when the requirement applies to EVERY product released on its applies_to_platforms, with no further condition (for example a store's privacy-policy URL requirement). A consumer may then treat the requirement as applicable as soon as the owner selects one of those platforms, without a separate applicability question. False or absent: applicability depends on the conditions and stays an owner decision. Requires applies_to_platforms."
         }
       }
     }

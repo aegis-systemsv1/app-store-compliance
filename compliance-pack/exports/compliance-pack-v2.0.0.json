@@ -1,39 +1,15 @@
 {
-  "catalogue_version": "2.0.0",
-  "catalogue_description": "AEGIS compliance requirement catalogue, v2. Authored source for the Compliance Pack export (see scripts/export-compliance-pack.py). Contains (1) the v1 Australian Privacy & Data Governance requirements (platform-agnostic; every item from the original 31-item discovery list is covered via covers_catalogue_items), (2) Apple App Store submission-readiness requirements and (3) Google Play submission-readiness requirements, authored 2026-10-04 from first-party Apple and Google sources only (docs/GAP-ANALYSIS-2026-10-STORES.md). Store rules are platform policy, never law: they use PLATFORM_POLICY_CURRENT / PLATFORM_POLICY_FUTURE (pack schema 1.1.0) and declare applies_to_platforms. No requirement description copies statutory, regulator or store-policy text beyond short, clearly attributed quotation; full text is always via source_url.",
-  "catalogue_items_covered": [
-    "personal_information_collected",
-    "sensitive_information",
-    "health_information",
-    "financial_information",
-    "location_information",
-    "device_behavioural_information",
-    "generated_inferred_personal_information",
-    "collection_source",
-    "purpose_of_collection",
-    "necessity_of_collection",
-    "database_storage_location",
-    "third_party_processors_subprocessors",
-    "external_apis",
-    "analytics_tracking_sdks",
-    "cookies_pixels",
-    "ai_llm_providers",
-    "automated_decision_making",
-    "data_used_in_automated_decisions",
-    "australia_vs_overseas_processing",
-    "authentication_access_controls",
-    "encryption",
-    "retention_periods",
-    "deletion_behaviour",
-    "account_deletion",
-    "data_access_export",
-    "correction_mechanisms",
-    "consent",
-    "collection_notices",
-    "privacy_policy",
-    "data_breach_arrangements",
-    "childrens_data"
-  ],
+  "pack_schema_version": "1.1.0",
+  "pack_version": "2.0.0",
+  "source": {
+    "repo": "aegis-systemsv1/app-store-compliance",
+    "commit": "db1155233c2ce631c5a0f6cc90c6020d49e7d271",
+    "tag": null,
+    "exported_at": "2026-10-04T05:21:07.923024Z",
+    "exported_by": "johngavin",
+    "license": "OpenRoots Agent License 2.3",
+    "license_origin": "Derived from app-store-compliance by Mirza Iqbal (mjmirza); this fork: aegis-systemsv1/app-store-compliance"
+  },
   "requirements": [
     {
       "requirement_id": "AU-PRIVACY-APP1-001",
@@ -6639,7 +6615,7 @@
           "evidence_id": "local-network-permission",
           "description": "If the app targets API 37+ and uses local-network discovery APIs, it declares ACCESS_LOCAL_NETWORK.",
           "method": "AUTOMATED",
-          "note": "SIGNAL: targetSdk >= 37 AND source references android.net.nsd.NsdManager, java.net.MulticastSocket or WifiManager.MulticastLock ⇒ merged manifest must contain uses-permission android.permission.ACCESS_LOCAL_NETWORK.",
+          "note": "SIGNAL: targetSdk >= 37 AND source references android.net.nsd.NsdManager, java.net.MulticastSocket or WifiManager.MulticastLock \u21d2 merged manifest must contain uses-permission android.permission.ACCESS_LOCAL_NETWORK.",
           "covers_catalogue_items": [
             "GPLAY-BUILD-010"
           ]
@@ -7292,7 +7268,7 @@
           "evidence_id": "ad-id-permission-consistency",
           "description": "AD_ID permission declaration matches advertising-ID usage.",
           "method": "AUTOMATED",
-          "note": "SIGNAL: targetSdk >= 33 AND Gradle dependency on com.google.android.gms:play-services-ads, play-services-ads-identifier, com.appsflyer:*, com.adjust.sdk:* or other ad-ID SDK ⇒ merged manifest contains uses-permission com.google.android.gms.permission.AD_ID not removed by tools:node=\"remove\"; conversely AD_ID present with no ad-ID SDK is reported for review.",
+          "note": "SIGNAL: targetSdk >= 33 AND Gradle dependency on com.google.android.gms:play-services-ads, play-services-ads-identifier, com.appsflyer:*, com.adjust.sdk:* or other ad-ID SDK \u21d2 merged manifest contains uses-permission com.google.android.gms.permission.AD_ID not removed by tools:node=\"remove\"; conversely AD_ID present with no ad-ID SDK is reported for review.",
           "covers_catalogue_items": [
             "GPLAY-PRIV-005"
           ]
@@ -7408,7 +7384,7 @@
           "evidence_id": "location-permission-level",
           "description": "Location permission level in the merged manifest is identified.",
           "method": "AUTOMATED",
-          "note": "SIGNAL: merged manifest uses-permission android.permission.ACCESS_FINE_LOCATION ⇒ Data safety must declare Precise location; android.permission.ACCESS_COARSE_LOCATION ⇒ Approximate location (attribute SDK-contributed entries from library manifests).",
+          "note": "SIGNAL: merged manifest uses-permission android.permission.ACCESS_FINE_LOCATION \u21d2 Data safety must declare Precise location; android.permission.ACCESS_COARSE_LOCATION \u21d2 Approximate location (attribute SDK-contributed entries from library manifests).",
           "covers_catalogue_items": [
             "GPLAY-DS-002"
           ]
@@ -7641,7 +7617,7 @@
           "evidence_id": "fine-location-without-button",
           "description": "API 37+ apps requesting precise location without the location-button flag are flagged.",
           "method": "AUTOMATED",
-          "note": "SIGNAL: targetSdk >= 37 AND merged manifest uses-permission android.permission.ACCESS_FINE_LOCATION without the onlyForLocationButton flag ⇒ flag for review.",
+          "note": "SIGNAL: targetSdk >= 37 AND merged manifest uses-permission android.permission.ACCESS_FINE_LOCATION without the onlyForLocationButton flag \u21d2 flag for review.",
           "covers_catalogue_items": [
             "GPLAY-PERM-003"
           ]
@@ -7700,7 +7676,7 @@
           "evidence_id": "read-contacts-vs-picker",
           "description": "READ_CONTACTS use and Contact Picker adoption are detected.",
           "method": "AUTOMATED",
-          "note": "SIGNAL: merged manifest uses-permission android.permission.READ_CONTACTS AND targetSdk >= 37 AND no source reference to Intent.ACTION_PICK_CONTACTS (or the string android.intent.action.PICK_CONTACTS) ⇒ flag.",
+          "note": "SIGNAL: merged manifest uses-permission android.permission.READ_CONTACTS AND targetSdk >= 37 AND no source reference to Intent.ACTION_PICK_CONTACTS (or the string android.intent.action.PICK_CONTACTS) \u21d2 flag.",
           "covers_catalogue_items": [
             "GPLAY-PERM-004"
           ]
@@ -8049,7 +8025,7 @@
           "evidence_id": "fgs-types-and-permissions",
           "description": "Every foreground service declares a type and the matching permission.",
           "method": "AUTOMATED",
-          "note": "SIGNAL: for each <service> in the merged manifest started via startForeground(: android:foregroundServiceType is set AND for each type T the manifest declares uses-permission android.permission.FOREGROUND_SERVICE_<T> (plus android.permission.FOREGROUND_SERVICE); missing either ⇒ fail.",
+          "note": "SIGNAL: for each <service> in the merged manifest started via startForeground(: android:foregroundServiceType is set AND for each type T the manifest declares uses-permission android.permission.FOREGROUND_SERVICE_<T> (plus android.permission.FOREGROUND_SERVICE); missing either \u21d2 fail.",
           "covers_catalogue_items": [
             "GPLAY-PERM-010"
           ]
@@ -8108,7 +8084,7 @@
           "evidence_id": "location-fgs-with-geofence",
           "description": "Location foreground services in apps that also implement geofencing are flagged.",
           "method": "AUTOMATED",
-          "note": "SIGNAL: merged manifest has a <service> with android:foregroundServiceType containing location AND source references geofence logic (GeofencingClient, Geofence.Builder or (?i)geofenc) ⇒ flag for review.",
+          "note": "SIGNAL: merged manifest has a <service> with android:foregroundServiceType containing location AND source references geofence logic (GeofencingClient, Geofence.Builder or (?i)geofenc) \u21d2 flag for review.",
           "covers_catalogue_items": [
             "GPLAY-PERM-011"
           ]
@@ -8661,7 +8637,7 @@
           "evidence_id": "loan-app-sensitive-access",
           "description": "Loan-app signals combined with prohibited data access are detected.",
           "method": "AUTOMATED",
-          "note": "SIGNAL: when owner-declared or keyword-detected lending functionality (strings matching (?i)\\b(loan|apr|repayment|borrow)\\b) is present, merged manifest must not contain READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_CONTACTS, ACCESS_FINE_LOCATION, READ_PHONE_NUMBERS or QUERY_ALL_PACKAGES ⇒ any hit fails.",
+          "note": "SIGNAL: when owner-declared or keyword-detected lending functionality (strings matching (?i)\\b(loan|apr|repayment|borrow)\\b) is present, merged manifest must not contain READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_CONTACTS, ACCESS_FINE_LOCATION, READ_PHONE_NUMBERS or QUERY_ALL_PACKAGES \u21d2 any hit fails.",
           "covers_catalogue_items": [
             "GPLAY-FIN-002"
           ]
@@ -9544,7 +9520,7 @@
           "evidence_id": "genai-report-ui",
           "description": "Generative AI usage and in-app report/flag UI are detected.",
           "method": "AUTOMATED",
-          "note": "SIGNAL: generative-AI SDK or endpoint detected (as GPLAY-PRIV-003 signal) AND string resources/UI source contain a report/flag action matching (?i)\\b(report|flag)\\b; missing report UI ⇒ fail.",
+          "note": "SIGNAL: generative-AI SDK or endpoint detected (as GPLAY-PRIV-003 signal) AND string resources/UI source contain a report/flag action matching (?i)\\b(report|flag)\\b; missing report UI \u21d2 fail.",
           "covers_catalogue_items": [
             "GPLAY-AI-001"
           ]
@@ -9744,43 +9720,5 @@
       "source_reference": "Spam, Functionality, and User Experience: Minimum Functionality",
       "universal_for_platforms": true
     }
-  ],
-  "skipped_unverified": {
-    "apple": [
-      {
-        "requirement_id": "APPLE-PROG-004",
-        "reason": "China storefront rejection for references to external AI services: the gap analysis found no developer.apple.com source; treated as unverified field practice and excluded from the pack until an Apple source exists."
-      }
-    ],
-    "google": [
-      {
-        "requirement_id": "GPLAY-QUAL-002",
-        "reason": "Gap analysis found no Google Play policy page making accessibility (TalkBack, 48dp targets, font scaling, contrast) a Play review requirement; the AEGIS claim derives from simulated monitor output. Not a verifiable Google Play requirement; keep as quality guidance outside this store pack."
-      },
-      {
-        "requirement_id": "GPLAY-AI-001 (sub-claim)",
-        "reason": "Gen-AI NCII controls (25 Aug 2026) cited only to a googleblog post, not re-verified on a support/DAC page; omitted from GPLAY-AI-001."
-      },
-      {
-        "requirement_id": "GPLAY-PERM-004 / GPLAY-PERM-003 (sub-claim)",
-        "reason": "'Pre-review checks from 27 Oct 2026' for contacts/location comes from a googleblog post only; omitted."
-      },
-      {
-        "requirement_id": "GPLAY-ACCT-006 (sub-claim)",
-        "reason": "AEGIS's '7-day cool-down' on account transfers was not seen on any fetched Google page; omitted."
-      },
-      {
-        "requirement_id": "GPLAY-ACCT-001 (sub-claim)",
-        "reason": "A 30 Sep 2026 organization-account migration deadline is not stated on the requirement page; no date asserted."
-      },
-      {
-        "requirement_id": "GPLAY-LIST-002 (sub-claim)",
-        "reason": "Short (80) and full (4,000) description character limits not shown on a fetched first-party page; only the 30-character title limit is encoded."
-      },
-      {
-        "requirement_id": "GPLAY-HEALTH-003 (sub-claim)",
-        "reason": "AEGIS's 'January 2026 tightening', 'medical-device labeling system' and '28 January 2026 Organization Account migration' for health apps not found on first-party pages; omitted."
-      }
-    ]
-  }
+  ]
 }

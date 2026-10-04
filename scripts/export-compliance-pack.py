@@ -31,7 +31,7 @@ from validate import (  # noqa: E402
     validate_compliance_requirements,
 )
 
-PACK_SCHEMA_VERSION = "1.0.0"
+PACK_SCHEMA_VERSION = "1.1.0"
 LICENSE = "OpenRoots Agent License 2.3"
 LICENSE_ORIGIN = (
     "Derived from app-store-compliance by Mirza Iqbal (mjmirza); "
