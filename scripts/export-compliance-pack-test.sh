@@ -19,7 +19,7 @@ expect_exit() { # name, expected-code, actual-code
 python3 scripts/validate-compliance-pack.py > "$T/validate_real.txt" 2>&1
 rc=$?
 expect_exit "real catalogue validates with exit 0" 0 "$rc"
-check "real catalogue reports all 12 requirements" "12 requirements, 0 errors" "$T/validate_real.txt"
+check "real catalogue reports all 174 requirements (12 AU privacy + 90 Apple + 72 Google Play)" "174 requirements, 0 errors" "$T/validate_real.txt"
 
 # --- 2. A minimal, valid fixture exports and validates (roundtrip) ---
 cat > "$T/good.json" <<'JSON'
@@ -190,6 +190,44 @@ COMPLIANCE_REQUIREMENTS_FILE="$T/missing_coverage.json" python3 scripts/validate
 rc=$?
 expect_exit "an uncovered declared catalogue item fails validation" 1 "$rc"
 check "names the uncovered item" "uncovered_thing" "$T/validate_coverage.txt"
+
+# --- 8. Pack schema 1.1.0: platform policy statuses and platform fields ---
+mkreq() { # id, status, effective_date-json, extra-json
+cat <<JSON
+{"requirement_id": "$1", "jurisdiction": "GLOBAL", "regulator": "Test Store",
+ "legislation": {"title": "Test policy", "source_url": "https://example.invalid/policy", "source_retrieved_date": "2026-10-04"},
+ "description": "fixture", "status": "$2", "effective_date": $3, "applicability_conditions": ["fixture"],
+ "evidence_method": "OWNER_EVIDENCE", "evidence_requirements": [{"evidence_id": "e1", "description": "d", "method": "OWNER_EVIDENCE"}],
+ "severity": "high", "release_blocking_policy": "blocking_once_current_and_effective", "requirement_version": 1, "last_verified_date": "2026-10-04",
+ "change_history": [{"requirement_version": 1, "changed_at": "2026-10-04", "change": "fixture", "pack_version_introduced": "9.9.9"}] $4}
+JSON
+}
+pv() { # name, expected-exit, requirement-json
+  printf '{"requirements": [%s]}' "$3" > "$T/pv.json"
+  python3 -c "import sys; sys.path.insert(0,'scripts'); import validate as v; e,w,n=v.validate_compliance_requirements('$T/pv.json', strict=False); print('\n'.join(e)); sys.exit(1 if e else 0)" > "$T/pv.txt" 2>&1
+  expect_exit "$1" "$2" "$?"
+}
+pv "a current store policy with a store and its platform validates" 0 "$(mkreq T-PP-001 PLATFORM_POLICY_CURRENT null ', "applies_to_platforms": ["ios"], "store": "APPLE_APP_STORE", "submission_category": "PRIVACY_AND_DATA", "universal_for_platforms": true')"
+pv "a future store policy without an effective_date is rejected" 1 "$(mkreq T-PP-002 PLATFORM_POLICY_FUTURE null ', "applies_to_platforms": ["android"], "store": "GOOGLE_PLAY"')"
+pv "a platform policy naming neither a store nor platforms is rejected" 1 "$(mkreq T-PP-003 PLATFORM_POLICY_CURRENT null '')"
+pv "an unknown platform is rejected" 1 "$(mkreq T-PP-004 PLATFORM_POLICY_CURRENT null ', "applies_to_platforms": ["linux"]')"
+pv "\"all\" is not a platform" 1 "$(mkreq T-PP-005 PLATFORM_POLICY_CURRENT null ', "applies_to_platforms": ["all"]')"
+pv "a Google Play requirement cannot apply to iOS" 1 "$(mkreq T-PP-006 PLATFORM_POLICY_CURRENT null ', "applies_to_platforms": ["ios"], "store": "GOOGLE_PLAY"')"
+pv "universal_for_platforms needs applies_to_platforms" 1 "$(mkreq T-PP-007 CURRENT_LAW null ', "universal_for_platforms": true')"
+pv "an unknown submission category is rejected" 1 "$(mkreq T-PP-008 PLATFORM_POLICY_CURRENT null ', "applies_to_platforms": ["web"], "submission_category": "MARKETING"')"
+pv "a platform-agnostic legal requirement (v1 shape) still validates" 0 "$(mkreq T-PP-009 CURRENT_LAW null '')"
+python3 scripts/export-compliance-pack.py --out "$T/real-pack.json" > "$T/export_real.txt" 2>&1
+check "the real catalogue exports with pack schema 1.1.0" '"pack_schema_version": "1.1.0"' "$T/real-pack.json"
+check "store requirements carry their platforms in the export" '"applies_to_platforms"' "$T/real-pack.json"
+python3 - "$T/real-pack.json" > "$T/law.txt" <<'PY'
+import json, sys
+reqs = json.load(open(sys.argv[1]))['requirements']
+store = [r for r in reqs if r['requirement_id'].startswith(('APPLE-', 'GPLAY-'))]
+law = [r['requirement_id'] for r in store if not r['status'].startswith('PLATFORM_POLICY') and r['status'] != 'GUIDANCE_GOOD_PRACTICE']
+noplat = [r['requirement_id'] for r in store if not r.get('applies_to_platforms')]
+print('store', len(store), 'labelled-as-law', law, 'without-platforms', noplat)
+PY
+check "every store requirement is platform policy (never law) and names its platforms" "store 162 labelled-as-law \[\] without-platforms \[\]" "$T/law.txt"
 
 echo "----"
 if [ "$fails" -eq 0 ]; then echo "export-compliance-pack-test: ALL PASS"; else echo "export-compliance-pack-test: $fails FAIL"; exit 1; fi

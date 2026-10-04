@@ -67,6 +67,17 @@ VALID_STATUS = {
     "ENACTED_FUTURE_COMMENCEMENT",
     "PROPOSED_CONSULTATION",
     "GUIDANCE_GOOD_PRACTICE",
+    # Since pack schema 1.1.0: app-store platform policy (enforced at store review, not law).
+    "PLATFORM_POLICY_CURRENT",
+    "PLATFORM_POLICY_FUTURE",
+}
+FUTURE_DATED_STATUS = {"ENACTED_FUTURE_COMMENCEMENT", "PLATFORM_POLICY_FUTURE"}
+VALID_PLATFORMS = {"web", "ios", "android", "macos", "windows"}
+VALID_STORES = {"APPLE_APP_STORE", "GOOGLE_PLAY"}
+STORE_PLATFORMS = {"APPLE_APP_STORE": {"ios", "macos"}, "GOOGLE_PLAY": {"android"}}
+VALID_SUBMISSION_CATEGORIES = {
+    "CODE_AND_BUILD", "PRIVACY_AND_DATA", "PERMISSIONS", "AUTHENTICATION", "PAYMENTS", "CONTENT_AND_SAFETY",
+    "STORE_LISTING", "REVIEWER_ACCESS", "LEGAL_AND_OWNER_DECLARATIONS", "SUBMISSION_ASSETS",
 }
 VALID_EVIDENCE_METHOD = {"AUTOMATED", "HYBRID", "OWNER_EVIDENCE"}
 VALID_EVIDENCE_ITEM_METHOD = {"AUTOMATED", "OWNER_EVIDENCE"}
@@ -134,10 +145,40 @@ def validate_compliance_requirements(path=COMPLIANCE_REQUIREMENTS, strict=True):
         if status not in VALID_STATUS:
             local_errors.append(f"requirement '{rid}' has invalid status '{status}'")
 
-        if status == "ENACTED_FUTURE_COMMENCEMENT" and not r.get("effective_date"):
+        if status in FUTURE_DATED_STATUS and not r.get("effective_date"):
             local_errors.append(
-                f"requirement '{rid}' has status ENACTED_FUTURE_COMMENCEMENT but no effective_date"
+                f"requirement '{rid}' has status {status} but no effective_date"
             )
+
+        # Pack schema 1.1.0 fields (all optional).
+        platforms = r.get("applies_to_platforms")
+        if platforms is not None:
+            if not isinstance(platforms, list) or not platforms:
+                local_errors.append(f"requirement '{rid}' applies_to_platforms must be a non-empty list when present")
+            else:
+                bad = [p for p in platforms if p not in VALID_PLATFORMS]
+                if bad:
+                    local_errors.append(f"requirement '{rid}' has unknown platform(s) {bad}")
+                if len(set(platforms)) != len(platforms):
+                    local_errors.append(f"requirement '{rid}' lists a platform twice")
+        store = r.get("store")
+        if store is not None:
+            if store not in VALID_STORES:
+                local_errors.append(f"requirement '{rid}' has invalid store '{store}'")
+            elif not platforms or not set(platforms) <= STORE_PLATFORMS[store]:
+                local_errors.append(
+                    f"requirement '{rid}' is for {store} but applies_to_platforms {platforms} is not within {sorted(STORE_PLATFORMS[store])}"
+                )
+        if status in {"PLATFORM_POLICY_CURRENT", "PLATFORM_POLICY_FUTURE"} and store is None and not platforms:
+            local_errors.append(f"requirement '{rid}' is a platform policy but names neither a store nor platforms")
+        universal = r.get("universal_for_platforms")
+        if universal is not None and not isinstance(universal, bool):
+            local_errors.append(f"requirement '{rid}' universal_for_platforms must be true or false")
+        if universal and not platforms:
+            local_errors.append(f"requirement '{rid}' is universal_for_platforms but has no applies_to_platforms")
+        cat = r.get("submission_category")
+        if cat is not None and cat not in VALID_SUBMISSION_CATEGORIES:
+            local_errors.append(f"requirement '{rid}' has invalid submission_category '{cat}'")
         if r.get("effective_date"):
             validate_date(r["effective_date"], "effective_date", rid)
 
