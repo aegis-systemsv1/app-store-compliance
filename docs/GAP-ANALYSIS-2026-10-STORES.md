@@ -359,3 +359,10 @@ Abbreviations: PCH = support.google.com/googleplay/android-developer/answer/<id>
 - The billing-ladder conclusion is an inference from the table heading ("deprecation and extension deadlines for each Google Play Billing Library version") together with the reminder "By Aug 31, 2026 … version 8 or later" for the v7 row. The page doesn't spell out the v9 or v10 wording.
 - The SDK Index has no public machine-readable API confirmed here. ShipSure SDK checks would need a maintained coordinate list.
 - The fetched page texts were kept locally for audit during authoring; re-fetch the cited URLs to re-verify.
+
+## Addendum 2026-10-16: pack 2.1.0 (screenshots and iPhone Duo)
+
+The text above is the 2026-10-04 record and is left as written. Re-read from Apple on 2026-10-16:
+
+- **APPLE-META-003 corrected (requirement_version 2).** The screenshot specification page now says the required iPhone set is "At least one screenshot for iPhone with Dynamic Island (medium display)" (1179x2556 or 1206x2622), and the iPad 13-inch set applies "if your app supports iPadOS". The 6.9-inch/6.5-inch wording above is superseded. The same page still marks the 6.5-inch row "Required if app runs on iPhone and screenshots for iPhone with Dynamic Island (large display) aren't provided"; the requirement records that inconsistency.
+- **APPLE-META-014 added.** Item 15's "later this year" is resolved: App Store Connect accepts iPhone Duo screenshots since 5 October 2026 (news kkphp5qo), outer 1398x2034 and inner 2007x2853. Apple's scope wording conflicts: the news post and the App Store What's New page say "any apps or games submitted" from April 2027; the screenshot specification page says "any app using the iOS 27.1 SDK or later". Both are recorded verbatim. Apple names the month only; effective_date 2027-04-01 is a convention.
