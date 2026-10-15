@@ -1,5 +1,5 @@
 {
-  "catalogue_version": "2.0.0",
+  "catalogue_version": "2.1.0",
   "catalogue_description": "AEGIS compliance requirement catalogue, v2. Authored source for the Compliance Pack export (see scripts/export-compliance-pack.py). Contains (1) the v1 Australian Privacy & Data Governance requirements (platform-agnostic; every item from the original 31-item discovery list is covered via covers_catalogue_items), (2) Apple App Store submission-readiness requirements and (3) Google Play submission-readiness requirements, authored 2026-10-04 from first-party Apple and Google sources only (docs/GAP-ANALYSIS-2026-10-STORES.md). Store rules are platform policy, never law: they use PLATFORM_POLICY_CURRENT / PLATFORM_POLICY_FUTURE (pack schema 1.1.0) and declare applies_to_platforms. No requirement description copies statutory, regulator or store-policy text beyond short, clearly attributed quotation; full text is always via source_url.",
   "catalogue_items_covered": [
     "personal_information_collected",
@@ -4411,9 +4411,9 @@
         "amending_act": null,
         "source_url": "https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/",
         "secondary_source_url": "https://developer.apple.com/app-store/review/guidelines/",
-        "source_retrieved_date": "2026-10-04"
+        "source_retrieved_date": "2026-10-16"
       },
-      "description": "Screenshots must show the app in use. iPhone apps need a screenshot set for the 6.9-inch display (or 6.5-inch where accepted), and apps that run on iPad need a 13-inch iPad set. Each set holds 1 to 10 screenshots in JPEG or PNG at an accepted pixel size; a missing required set blocks submission. Exact accepted dimensions should be checked against the current Apple page when building the check.",
+      "description": "Screenshots must show the app in use. Apple's screenshot specification page (read 2026-10-16) says: \"To submit your app, you must provide screenshots for the following required display sizes\": \"iPhone: At least one screenshot for iPhone with Dynamic Island (medium display)\" (accepted sizes 1179x2556 or 1206x2622, portrait or landscape) and \"iPad (if your app supports iPadOS): At least one screenshot for iPad 13-inch display\" (2064x2752 or 2048x2732, portrait or landscape). The same page still marks the 6.5-inch iPhone with Face ID (large display) row \"Required if app runs on iPhone and screenshots for iPhone with Dynamic Island (large display) aren't provided\", so Apple's page is not fully consistent; providing the medium-display set satisfies the page's stated requirement. Each set holds 1 to 10 screenshots in JPEG or PNG at an accepted pixel size; a missing required set blocks submission. iPhone Duo screenshots are a separate future requirement (APPLE-META-014). Check exact accepted dimensions against the live Apple page when building the check.",
       "status": "PLATFORM_POLICY_CURRENT",
       "effective_date": null,
       "applicability_conditions": [
@@ -4425,7 +4425,7 @@
           "evidence_id": "screenshot-sets-present",
           "description": "Required screenshot sets exist per locale.",
           "method": "AUTOMATED",
-          "note": "SIGNAL: fastlane/screenshots/<locale>/ contains 1-10 images for the 6.9-inch (e.g. 1260x2736, 1320x2868 portrait or landscape equivalents) or 6.5-inch (1284x2778 / 1242x2688) class; if TARGETED_DEVICE_FAMILY in project.pbxproj includes 2, also 1-10 images at 13-inch iPad size (2064x2752 or 2048x2732).",
+          "note": "SIGNAL: fastlane/screenshots/<locale>/ contains 1-10 images at an iPhone with Dynamic Island (medium display) size (1179x2556 or 1206x2622, or the landscape equivalents); if TARGETED_DEVICE_FAMILY in project.pbxproj includes 2 (or Expo ios.supportsTablet is true), also 1-10 images at 13-inch iPad size (2064x2752 or 2048x2732, or landscape).",
           "covers_catalogue_items": [
             "APPLE-META-003"
           ]
@@ -4442,14 +4442,20 @@
       ],
       "severity": "critical",
       "release_blocking_policy": "blocking_once_current_and_effective",
-      "requirement_version": 1,
-      "last_verified_date": "2026-10-04",
+      "requirement_version": 2,
+      "last_verified_date": "2026-10-16",
       "change_history": [
         {
           "requirement_version": 1,
           "changed_at": "2026-10-04",
           "change": "initial authoring from first-party Apple sources (store submission pack)",
           "pack_version_introduced": "2.0.0"
+        },
+        {
+          "requirement_version": 2,
+          "changed_at": "2026-10-16",
+          "change": "corrected the required iPhone set from 6.9-inch/6.5-inch to iPhone with Dynamic Island (medium display), per Apple's screenshot specification page read 2026-10-16; recorded the page's remaining 6.5-inch row wording; iPad set scoped to apps that support iPadOS",
+          "pack_version_introduced": "2.1.0"
         }
       ],
       "applies_to_platforms": [
@@ -4457,7 +4463,7 @@
       ],
       "store": "APPLE_APP_STORE",
       "submission_category": "SUBMISSION_ASSETS",
-      "source_reference": "2.3.3; Screenshot specifications",
+      "source_reference": "2.3.3; Screenshot specifications (required display sizes)",
       "universal_for_platforms": true
     },
     {
@@ -4975,6 +4981,65 @@
       "store": "APPLE_APP_STORE",
       "submission_category": "SUBMISSION_ASSETS",
       "source_reference": "HIG App icons: Specifications",
+      "universal_for_platforms": true
+    },
+    {
+      "requirement_id": "APPLE-META-014",
+      "jurisdiction": "GLOBAL",
+      "regulator": "Apple (App Store Review)",
+      "legislation": {
+        "title": "Apple Developer News, Prepare and submit your apps for iPhone Duo (5 October 2026); App Store Connect Help, Screenshot specifications (iPhone Duo)",
+        "amending_act": null,
+        "source_url": "https://developer.apple.com/news/?id=kkphp5qo",
+        "secondary_source_url": "https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/",
+        "source_retrieved_date": "2026-10-16"
+      },
+      "description": "From April 2027, iPhone Duo screenshots become required. App Store Connect has accepted iPhone Duo screenshots since 5 October 2026; a product page with them shows a badge that the app is optimized for iPhone Duo. Duo sizes: outer display 1398x2034 (or 2034x1398) and inner display 2007x2853 (or 2853x2007). Apple's wording on scope conflicts and is recorded here as published: the 5 October 2026 news post and the App Store What's New page say \"Starting April 2027, any apps or games submitted will need to include screenshots for iPhone Duo\"; the screenshot specification page says \"Starting in April 2027, screenshots will be required for any app using the iOS 27.1 SDK or later.\" Because the iOS 27 SDK upload floor also starts in April 2027 (APPLE-BUILD-003), a consumer that wants to avoid a rejection should treat every iOS submission from that month as in scope; a consumer that applies only the narrower reading must check the build SDK. Apple named the month only; effective_date uses the first of the month as a convention and must be updated when Apple publishes a firm date. App previews (video) for iPhone Duo are optional. No iPhone Duo-specific App Review guideline has been published.",
+      "status": "PLATFORM_POLICY_FUTURE",
+      "effective_date": "2027-04-01",
+      "applicability_conditions": [
+        "every iOS app or game submitted to the App Store from April 2027 (Apple Developer News kkphp5qo and the App Store What's New page)",
+        "narrower reading on the screenshot specification page: iOS apps built with the iOS 27.1 SDK or later"
+      ],
+      "evidence_method": "HYBRID",
+      "evidence_requirements": [
+        {
+          "evidence_id": "duo-screenshot-sets-present",
+          "description": "iPhone Duo outer and inner display screenshot sets exist per locale.",
+          "method": "AUTOMATED",
+          "note": "SIGNAL: fastlane/screenshots/<locale>/ (or the repo's documented screenshot folder) contains 1-10 images at 1398x2034 or 2034x1398 (outer display) and at 2007x2853 or 2853x2007 (inner display); `sips -g pixelWidth -g pixelHeight` confirms the size.",
+          "covers_catalogue_items": [
+            "APPLE-META-014"
+          ]
+        },
+        {
+          "evidence_id": "duo-screenshots-uploaded",
+          "description": "The iPhone Duo screenshots were captured from the real app (iPhone Duo simulator in Xcode 27.1 or later, or a physical iPhone Duo) and uploaded in App Store Connect, and the product page preview was checked on iPhone Duo.",
+          "method": "OWNER_EVIDENCE",
+          "note": "Owner supplies the App Store Connect media record for the version, or a screenshot of the Duo media tab and the product page preview.",
+          "covers_catalogue_items": [
+            "APPLE-META-014"
+          ]
+        }
+      ],
+      "severity": "critical",
+      "release_blocking_policy": "blocking_once_current_and_effective",
+      "requirement_version": 1,
+      "last_verified_date": "2026-10-16",
+      "change_history": [
+        {
+          "requirement_version": 1,
+          "changed_at": "2026-10-16",
+          "change": "initial authoring from first-party Apple sources (news kkphp5qo, App Store What's New, screenshot specifications), recording Apple's conflicting scope wording",
+          "pack_version_introduced": "2.1.0"
+        }
+      ],
+      "applies_to_platforms": [
+        "ios"
+      ],
+      "store": "APPLE_APP_STORE",
+      "submission_category": "SUBMISSION_ASSETS",
+      "source_reference": "Apple Developer News kkphp5qo (2026-10-05); Screenshot specifications, iPhone Duo",
       "universal_for_platforms": true
     },
     {

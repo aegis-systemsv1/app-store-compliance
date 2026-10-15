@@ -19,7 +19,7 @@ expect_exit() { # name, expected-code, actual-code
 python3 scripts/validate-compliance-pack.py > "$T/validate_real.txt" 2>&1
 rc=$?
 expect_exit "real catalogue validates with exit 0" 0 "$rc"
-check "real catalogue reports all 174 requirements (12 AU privacy + 90 Apple + 72 Google Play)" "174 requirements, 0 errors" "$T/validate_real.txt"
+check "real catalogue reports all 175 requirements (12 AU privacy + 91 Apple + 72 Google Play)" "175 requirements, 0 errors" "$T/validate_real.txt"
 
 # --- 2. A minimal, valid fixture exports and validates (roundtrip) ---
 cat > "$T/good.json" <<'JSON'
@@ -227,7 +227,7 @@ law = [r['requirement_id'] for r in store if not r['status'].startswith('PLATFOR
 noplat = [r['requirement_id'] for r in store if not r.get('applies_to_platforms')]
 print('store', len(store), 'labelled-as-law', law, 'without-platforms', noplat)
 PY
-check "every store requirement is platform policy (never law) and names its platforms" "store 162 labelled-as-law \[\] without-platforms \[\]" "$T/law.txt"
+check "every store requirement is platform policy (never law) and names its platforms" "store 163 labelled-as-law \[\] without-platforms \[\]" "$T/law.txt"
 
 echo "----"
 if [ "$fails" -eq 0 ]; then echo "export-compliance-pack-test: ALL PASS"; else echo "export-compliance-pack-test: $fails FAIL"; exit 1; fi
