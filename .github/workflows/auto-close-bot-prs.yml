@@ -3,9 +3,9 @@ name: Auto-close bot PRs
 on:
   pull_request_target:
     types: [opened, reopened]
+# Least privilege: this job only comments on and closes PRs. It must never check out PR code.
 permissions:
   pull-requests: write
-  contents: write
 jobs:
   close-bot-pr:
     runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
           REF: ${{ github.event.pull_request.head.ref }}
         run: |
           if printf '%s' "$REF" | grep -qE 'jules|[0-9]{10,}'; then
-            gh pr close "$PR" --repo "$REPO" --delete-branch --comment "Closed automatically. This repo does not accept scheduled bot regeneration PRs. Master carries the canonical, tested monitor suite. See AGENTS.md."
+            gh pr close "$PR" --repo "$REPO" --comment "Closed automatically. This repo does not accept scheduled bot regeneration PRs. Master carries the canonical, tested monitor suite. See AGENTS.md."
           else
             echo "not a bot pattern, leaving open"
           fi
